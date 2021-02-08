@@ -1,5 +1,5 @@
 # e1039-data-mgt
-Intended for developing the method of automatic submission of grid jobs for decodedd data.
+Intended for developing the method of automatic submission of grid jobs for decoded data.
 
 ```
 renew_proxy.sh

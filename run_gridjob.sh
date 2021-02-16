@@ -6,13 +6,17 @@
 export ROLE=Analysis
 export X509_USER_PROXY=/var/tmp/${USER}.${ROLE}.proxy
 
+
+dir_scripts=$(dirname $(readlink -f $BASH_SOURCE))
+
+#grid setup script
 source /e906/app/software/script/setup-jobsub-spinquest.sh
 
 ##list out all the decoded runs and save the runid (by kenichi)
-mysql --defaults-file=/data2/e1039/resource/db_conf/my_db1.cnf     --batch --skip-column-names     --execute='select run_id from deco_status where deco_status = 2 order by run_id desc'     user_e1039_maindaq >/seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/list.txt
+mysql --defaults-file=/data2/e1039/resource/db_conf/my_db1.cnf     --batch --skip-column-names     --execute='select run_id from deco_status where deco_status = 2 order by run_id desc'     user_e1039_maindaq >$dir_scripts/list.txt
 
 ##find out the difference between the two list and copy it to pnfs/e1039/tape_backed/decoded_data area
-grep -vxf /seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/list_hold.txt /seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/list.txt >/seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/run_list.txt
+grep -vxf $dir_scripts/list_hold.txt $dir_scripts/list.txt >$dir_scripts/run_list.txt
 
 ##Loop over new decoded data
 while read line; do
@@ -31,28 +35,16 @@ while read line; do
     #copy the decoded data to tape_backed area
     cp -r /data2/e1039/dst/$run_dir /pnfs/e1039/tape_backed/decoded_data
 
-    #Run the grid job
-    /seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/gridsub_data.sh $run_dir 1 $line 0 splitting
+    #submit the grid job
+    $dir_scripts/gridsub_data.sh $run_dir 1 $line 0 splitting
+
+    #submitted list
+    echo $line >>$dir_scripts/submitted_list.txt
 
   fi
 
-done </seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/run_list.txt
+done <$dir_scripts/run_list.txt
 
 ##update the holding list
-cat /seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/run_list.txt >>/seaquest/users/apun/abi_project/data_manage/e1039-data-mgt/list_hold.txt
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+cat $dir_scripts/run_list.txt >>$dir_scripts/list_hold.txt
 

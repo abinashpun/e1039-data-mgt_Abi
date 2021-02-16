@@ -51,3 +51,6 @@ fi
 mv *.root $CONDOR_DIR_OUTPUT/
 
 echo "gridrun.sh finished!"
+echo "Following for recording status: data file and status (0 if success otherwise error)"
+echo $data_file
+echo $RET

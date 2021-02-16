@@ -30,8 +30,8 @@ These are the original scripts to run real data in grid with the macro, `RecoE10
 
 #### crontab list:
 ```
-0 0 */5 * * /usr/bin/kcron /seaquest/users/apun/abi_project/data_manage/test_test/renew_proxy.sh
-0 */3 * * * /usr/bin/kcron /seaquest/users/apun/abi_project/data_manage/test_test/run_gridjob.sh
-0 */4 * * * /usr/bin/kcron /seaquest/users/apun/abi_project/data_manage/test_test/re_run_gridjob.sh
+0 0 */5 * * /usr/bin/kcron /path_to_script_area/renew_proxy.sh
+0 */3 * * * /usr/bin/kcron /path_to_script_area/run_gridjob.sh
+0 */4 * * * /usr/bin/kcron /path_to_script_area/re_run_gridjob.sh
 ```
 First cron job in the list renews the proxy certificate every 5 days and store it in `/var/tmp/${USER}.${ROLE}.proxy` area. The last two jobs uses the certificate from that area. The second cron job is submitting grid jobs every 3 hours and third cron job is re-submitting the failed jobs every four hours.

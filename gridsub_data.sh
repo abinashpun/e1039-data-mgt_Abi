@@ -54,9 +54,11 @@ for data_path in ${data_path_list[*]} ; do
     data_file=$(basename $data_path)
     job_name=${data_file%'.root'}
 
-    mkdir -p $work/$job_name/log
-    mkdir -p $work/$job_name/out
-    chmod -R 01755 $work/$job_name
+    if [ $resub_file = 'NULL' ]; then
+	mkdir -p $work/$job_name/log
+	mkdir -p $work/$job_name/out
+	chmod -R 01755 $work/$job_name
+    fi
     
     rsync -av $dir_macros/gridrun_data.sh $work/$job_name/gridrun_data.sh
 

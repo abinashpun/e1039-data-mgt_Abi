@@ -8,6 +8,7 @@ export X509_USER_PROXY=/var/tmp/${USER}.${ROLE}.proxy
 
 
 dir_scripts=$(dirname $(readlink -f $BASH_SOURCE))
+FILE_RECO_STAT=$dir_scripts/reco_status.txt
 
 #grid setup script
 source /e906/app/software/script/setup-jobsub-spinquest.sh
@@ -19,29 +20,29 @@ mysql --defaults-file=/data2/e1039/resource/db_conf/my_db1.cnf     --batch --ski
 grep -vxf $dir_scripts/list_hold.txt $dir_scripts/list.txt >$dir_scripts/run_list.txt
 
 ##Loop over new decoded data
-while read line; do
-  ##Reading each line
-  echo $line
+while read RunNum; do
   
-  run_dir=($(printf 'run_%06d' $line) )
+  run_dir=($(printf 'run_%06d' $RunNum) )
   echo $run_dir
   
   ##no. of splits in corresponding run
-  n_splits=$(ls /data2/e1039/dst/$run_dir/ | wc -l)
-  echo $n_splits
+  N_splits=$(ls /data2/e1039/dst/$run_dir/ | wc -l)
+  echo $N_splits
 
-  if [ $n_splits -gt 1 ]; then #choose the runs with more than 1 splits only
+  reco_status=0
+  if [ $N_splits -gt 1 ]; then #choose the runs with more than 1 splits only
 
     #copy the decoded data to tape_backed area
     cp -r /data2/e1039/dst/$run_dir /pnfs/e1039/tape_backed/decoded_data
 
     #submit the grid job
-    $dir_scripts/gridsub_data.sh $run_dir 1 $line 0 splitting
+    $dir_scripts/gridsub_data.sh $run_dir 1 $RunNum 0 splitting
 
-    #submitted list
-    echo $line >>$dir_scripts/submitted_list.txt
+    reco_status=1    
 
   fi
+
+ paste <(echo "$RunNum") <(echo "$N_splits") <(echo "$reco_status")>>$FILE_RECO_STAT
 
 done <$dir_scripts/run_list.txt
 

@@ -8,7 +8,7 @@ do_sub=$2
 run_name=$3
 nevents=$4
 dst_mode=${5:-'splitting'} # 'splitting' or 'single'
-resub_file=${6:-'NULL'} #file for resubmitting run
+resub_file=${6:-'null'} #file for resubmitting run
 
 if [ $do_sub == 1 ]; then
     echo "Grid mode."
@@ -27,7 +27,7 @@ fi
 #location of the decoded data
 data_dir="/pnfs/e1039/tape_backed/decoded_data"
 
-if [ $resub_file = 'NULL' ]; then
+if [ "$resub_file" = "null" ]; then
 
     mkdir -p $work
     chmod -R 01755 $work
@@ -46,7 +46,9 @@ if [ $resub_file = 'NULL' ]; then
     fi
 
 else
+ 
     data_path_list=( $(find $data_dir -name  $resub_file ) )
+   
 fi #resub_file condition
 
 for data_path in ${data_path_list[*]} ; do
@@ -54,7 +56,7 @@ for data_path in ${data_path_list[*]} ; do
     data_file=$(basename $data_path)
     job_name=${data_file%'.root'}
 
-    if [ $resub_file = 'NULL' ]; then
+    if [ "$resub_file" = "null" ]; then
 	mkdir -p $work/$job_name/log
 	mkdir -p $work/$job_name/out
 	chmod -R 01755 $work/$job_name

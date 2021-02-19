@@ -6,7 +6,6 @@
 export ROLE=Analysis
 export X509_USER_PROXY=/var/tmp/${USER}.${ROLE}.proxy
 
-
 dir_scripts=$(dirname $(readlink -f $BASH_SOURCE))
 FILE_RECO_STAT=$dir_scripts/reco_status.txt
 
@@ -30,10 +29,11 @@ while read RunNum; do
   echo $N_splits
 
   reco_status=0
+
   if [ $N_splits -gt 1 ]; then #choose the runs with more than 1 splits only
 
     #copy the decoded data to tape_backed area
-    cp -r /data2/e1039/dst/$run_dir /pnfs/e1039/tape_backed/decoded_data
+    cp -ru /data2/e1039/dst/$run_dir /pnfs/e1039/tape_backed/decoded_data
 
     #submit the grid job
     $dir_scripts/gridsub_data.sh $run_dir 1 $RunNum 0 splitting

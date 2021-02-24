@@ -8,11 +8,10 @@ range_1st=$2
 range_last=$3
 
 dir_scripts=$(dirname $(readlink -f $BASH_SOURCE))
-dir_recofile=/pnfs/e1039/persistent/cosmic_recodata/$jobname
-
+dir_recofile=/pnfs/e1039/persistent/cosmic_recodata/
 
 case ${run_info} in
-##===============range================================================
+    ##===============range================================================
     "range")
 	
 	for ((run_num=range_1st;run_num<=range_last;run_num++));
@@ -45,11 +44,11 @@ case ${run_info} in
 		    reco_status=2
 		fi
 	    fi
-	    paste <(echo "$run_num") <(echo "$N_splits") <(echo "$reco_status")
+	    echo -e "${run_num}\t${N_splits}\t${reco_status}"
 	done	
 	;;
 
-##===============run================================================
+    ##===============run================================================
     "run")
 	run_dir=($(printf 'run_%06d' $range_1st) )
 	
@@ -77,10 +76,10 @@ case ${run_info} in
 		reco_status=2
 	    fi
 	fi
-	paste <(echo "$range_1st") <(echo "$N_splits") <(echo "$reco_status")
+	echo -e "${range_1st}\t${N_splits}\t${reco_status}"
 	;;
 
-##===============list================================================    
+    ##===============list================================================    
     "list")
 
 	
@@ -116,11 +115,18 @@ case ${run_info} in
 		    reco_status=2
 		fi
 	    fi
-	    paste <(echo "$run_num") <(echo "$N_splits") <(echo "$reco_status")
+	    echo -e "${run_num}\t${N_splits}\t${reco_status}"
 	done <$range_1st
 	;;
+    #================status info===========================================	
+    "status_info")
+	echo "The reco status:"
+	echo "	0 = Skipped"
+	echo "	1 = Being processed"
+	echo "	2 = Completed" 
 
-##===============default================================================
+	;;
+    ##===============default================================================
     *)
 
 	echo "Alert! Alert! " 
@@ -130,6 +136,3 @@ case ${run_info} in
 	echo "c) list:  2nd arguement should be the list of runs"
 
 esac 
-
-
-

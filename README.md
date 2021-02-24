@@ -38,14 +38,14 @@ This script is to get the reconstruction status of the runs. The output depends 
 get_reco_status.sh run run#
 get_reco_status.sh range run#begin run#end
 get_reco_status.sh list list_of_runs.txt
+get_reco_status.sh status_info
 ```
 The script will generate three tab separated columns. First column represents run number, second represents number of splitted files and 3rd represents reconstruction status (0: skipped, 1: being processed, 2:completed).
 
-
 #### crontab list:
 ```
-0 0 */5 * * /usr/bin/kcron /path_to_script_area/renew_proxy.sh
+0 0 */4 * * /usr/bin/kcron /path_to_script_area/renew_proxy.sh
 0 */3 * * * /usr/bin/kcron /path_to_script_area/run_gridjob.sh
 0 */4 * * * /usr/bin/kcron /path_to_script_area/re_run_gridjob.sh
 ```
-First cron job in the list renews the proxy certificate every 5 days and store it in `/var/tmp/${USER}.${ROLE}.proxy` area. The last two jobs uses the certificate from that area. The second cron job is submitting grid jobs every 3 hours and third cron job is re-submitting the failed jobs every four hours.
+First cron job in the list renews the proxy certificate every 4 days and store it in `/var/tmp/${USER}.${ROLE}.proxy` area. The last two jobs uses the certificate from that area. The second cron job is submitting grid jobs every 3 hours and third cron job is re-submitting the failed jobs every four hours.

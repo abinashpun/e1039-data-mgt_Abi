@@ -10,6 +10,8 @@ nevents=$4
 dst_mode=${5:-'splitting'} # 'splitting' or 'single'
 resub_file=${6:-'null'} #file for resubmitting run
 
+echo $resub_file
+
 if [ $do_sub == 1 ]; then
     echo "Grid mode."
     if ! which jobsub_submit &>/dev/null ; then
@@ -18,6 +20,7 @@ if [ $do_sub == 1 ]; then
 	exit
     fi
     work=/pnfs/e1039/persistent/cosmic_recodata/$jobname
+    #work=/pnfs/e1039/persistent/users/apun/test_reco/$jobname
     # ln -sf /pnfs/e906/persistent/cosmic_recodata data
 else
     echo "Local mode."
@@ -55,6 +58,8 @@ for data_path in ${data_path_list[*]} ; do
     
     data_file=$(basename $data_path)
     job_name=${data_file%'.root'}
+    echo $data_file
+    echo $job_name
 
     if [ "$resub_file" = "null" ]; then
 	mkdir -p $work/$job_name/log
@@ -65,15 +70,19 @@ for data_path in ${data_path_list[*]} ; do
     rsync -av $dir_macros/gridrun_data.sh $work/$job_name/gridrun_data.sh
 
     if [ $do_sub == 1 ]; then
-	cmd="jobsub_submit"
-	cmd="$cmd -g --OS=SL7 --use_gftp --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE -e IFDHC_VERSION --expected-lifetime='$LIFE_TIME'"
+	#cmd="jobsub_submit"
+	#cmd="$cmd -g --OS=SL7 --use_gftp --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE -e IFDHC_VERSION --expected-lifetime='$LIFE_TIME'"
 	#cmd="$cmd -g --OS=SL7 --use_gftp --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC -e IFDHC_VERSION --expected-lifetime='$LIFE_TIME'"
+        cmd="jobsub_submit --grid"
+        cmd="$cmd -l '+SingularityImage=\"/cvmfs/singularity.opensciencegrid.org/e1039/e1039-sl7:latest\"'"
+        cmd="$cmd --append_condor_requirements='(TARGET.HAS_SINGULARITY=?=true)'"
+        cmd="$cmd --use_gftp --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE -e IFDHC_VERSION --expected-lifetime='$LIFE_TIME'"
 	cmd="$cmd --mail_never"
 	cmd="$cmd -L $work/$job_name/log/log.txt"
 	cmd="$cmd -f $work/input.tar.gz"
 	cmd="$cmd -d OUTPUT $work/$job_name/out"
-	cmd="$cmd --append_condor_requirements='(TARGET.GLIDEIN_Site isnt \"UCSD\")'"
-	cmd="$cmd --append_condor_requirements='(TARGET.GLIDEIN_Site isnt \"SU-ITS\")'"
+	#cmd="$cmd --append_condor_requirements='(TARGET.GLIDEIN_Site isnt \"UCSD\")'"
+	#cmd="$cmd --append_condor_requirements='(TARGET.GLIDEIN_Site isnt \"SU-ITS\")'"
 	cmd="$cmd -f $data_path"
 	cmd="$cmd file://`which $work/$job_name/gridrun_data.sh` $nevents $run_name $data_file"
 	echo "$cmd"

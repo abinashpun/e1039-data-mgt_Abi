@@ -20,7 +20,6 @@ if [ $do_sub == 1 ]; then
 	exit
     fi
     work=/pnfs/e1039/persistent/cosmic_recodata/$jobname
-    #work=/pnfs/e1039/persistent/users/apun/test_reco/$jobname
     # ln -sf /pnfs/e906/persistent/cosmic_recodata data
 else
     echo "Local mode."
@@ -28,7 +27,7 @@ else
 fi
 
 #location of the decoded data
-data_dir="/pnfs/e1039/tape_backed/decoded_data"
+data_dir="/pnfs/e1039/scratch/cosmic_decoded_dst"
 
 if [ "$resub_file" = "null" ]; then
 
@@ -81,8 +80,6 @@ for data_path in ${data_path_list[*]} ; do
 	cmd="$cmd -L $work/$job_name/log/log.txt"
 	cmd="$cmd -f $work/input.tar.gz"
 	cmd="$cmd -d OUTPUT $work/$job_name/out"
-	#cmd="$cmd --append_condor_requirements='(TARGET.GLIDEIN_Site isnt \"UCSD\")'"
-	#cmd="$cmd --append_condor_requirements='(TARGET.GLIDEIN_Site isnt \"SU-ITS\")'"
 	cmd="$cmd -f $data_path"
 	cmd="$cmd file://`which $work/$job_name/gridrun_data.sh` $nevents $run_name $data_file"
 	echo "$cmd"
@@ -93,6 +90,11 @@ for data_path in ${data_path_list[*]} ; do
 	cd $work/$job_name/
 	$work/$job_name/gridrun_data.sh $nevents $run_num $data_file | tee $work/$job_name/log/log.txt
 	cd -
-    fi
+    fi | tee $dir_macros/single_log_gridsub.txt
+   
+    JOBID="$(grep -o '\S*@jobsub\S*' <<< $(tail -2 $dir_macros/single_log_gridsub.txt | head -1))"
+    echo $JOBID
+    echo $job_name
+    paste <(echo "$job_name") <(echo "$JOBID")>>$dir_macros/jobid_info.txt
 
 done 2>&1 | tee $dir_macros/log_gridsub.txt
